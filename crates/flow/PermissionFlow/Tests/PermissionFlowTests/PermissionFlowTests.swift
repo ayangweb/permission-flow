@@ -46,6 +46,43 @@ func chineseRegionsCarryTheirScriptBeforeTheLocaleLanguageAPI() {
 }
 
 @Test
+func thePrivacyPaneIdentifierFollowsTheRunningSystem() {
+    // macOS 12 does not recognise the `com.apple.settings.*` privacy pane, and
+    // a deeplink carrying it opens System Preferences at its root pane instead
+    // of the permission, so the identifier is versioned.
+    #expect(
+        SystemSettingsDestination.privacyPaneIdentifier(isVenturaOrLater: true) ==
+            "com.apple.settings.PrivacySecurity.extension"
+    )
+    #expect(
+        SystemSettingsDestination.privacyPaneIdentifier(isVenturaOrLater: false) ==
+            "com.apple.preference.security"
+    )
+}
+
+@Test
+func thePrivacyAnchorIsUnchangedAcrossSystems() {
+    // Only the pane identifier moved in macOS 13; the anchors did not, so a
+    // destination carries the same anchor on both.
+    let anchor = SystemSettingsDestination.privacy(anchor: .privacyListenEvent)
+
+    #expect(anchor.anchor == "Privacy_ListenEvent")
+    #expect(
+        anchor.url.absoluteString ==
+            "x-apple.systempreferences:\(anchor.paneIdentifier ?? "")?Privacy_ListenEvent"
+    )
+
+    let monterey = SystemSettingsDestination(
+        paneIdentifier: SystemSettingsDestination.privacyPaneIdentifier(isVenturaOrLater: false),
+        anchor: PrivacySecurityAnchor.privacyListenEvent.rawValue
+    )
+    #expect(
+        monterey.url.absoluteString ==
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent"
+    )
+}
+
+@Test
 @MainActor
 func controllerAcceptsOnlyUniqueAppBundles() {
     let controller = PermissionFlowController()

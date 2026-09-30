@@ -146,24 +146,48 @@ public extension SystemSettingsDestination {
 public extension SystemSettingsDestination {
     /// Privacy & Security home page.
     static func privacy() -> Self {
-        Self(paneIdentifier: "com.apple.settings.PrivacySecurity.extension")
+        privacyDestination(anchor: nil)
     }
 
     /// Convenience helper for the Privacy & Security extension anchors.
     /// Example anchors include `Privacy_Advertising` and `Privacy_AllFiles`.
     static func privacy(anchor: String) -> Self {
-        Self(
-            paneIdentifier: "com.apple.settings.PrivacySecurity.extension",
-            anchor: anchor
-        )
+        privacyDestination(anchor: anchor)
     }
 
     /// Convenience helper for typed Privacy & Security anchors.
     static func privacy(anchor: PrivacySecurityAnchor) -> Self {
-        Self(
-            paneIdentifier: "com.apple.settings.PrivacySecurity.extension",
-            anchor: anchor.rawValue
-        )
+        privacyDestination(anchor: anchor.rawValue)
+    }
+
+    /// The privacy pane identifier the running system understands.
+    ///
+    /// macOS 13 renamed System Preferences to System Settings and gave every
+    /// pane a new `com.apple.settings.*` identifier. macOS 12 only knows the
+    /// `com.apple.preference.security` one, and a deeplink carrying the newer
+    /// identifier is not merely unrecognised there: System Preferences opens at
+    /// its own root pane, so the user lands nowhere near the permission they
+    /// were sent to grant. The privacy anchors themselves did not move, so only
+    /// the pane identifier is versioned.
+    ///
+    /// Panes that macOS 12 never had — App Management, Media & Apple Music —
+    /// keep the anchor they carry and land on the Security pane instead, which
+    /// is the closest page that system has.
+    static func privacyPaneIdentifier(isVenturaOrLater: Bool) -> String {
+        isVenturaOrLater
+            ? "com.apple.settings.PrivacySecurity.extension"
+            : "com.apple.preference.security"
+    }
+
+    private static func privacyDestination(anchor: String?) -> Self {
+        let isVenturaOrLater: Bool
+        if #available(macOS 13, *) {
+            isVenturaOrLater = true
+        } else {
+            isVenturaOrLater = false
+        }
+
+        return Self(paneIdentifier: privacyPaneIdentifier(isVenturaOrLater: isVenturaOrLater), anchor: anchor)
     }
 
     /// Wallpaper settings.
