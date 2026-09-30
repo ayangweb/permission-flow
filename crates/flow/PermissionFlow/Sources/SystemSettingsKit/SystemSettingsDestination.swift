@@ -6,7 +6,7 @@ import UIKit
 #if os(macOS)
 /// Anchor points for navigating to specific sections within the Displays settings pane.
 /// These anchors allow direct navigation to subsections of the macOS System Settings Displays panel.
-@available(macOS 13.0, *)
+@available(macOS 12.0, *)
 public enum DisplaySettingsAnchor: String, CaseIterable, Sendable {
     /// Opens the Advanced section in Displays settings.
     case advancedSection
@@ -32,7 +32,7 @@ public enum DisplaySettingsAnchor: String, CaseIterable, Sendable {
 
 /// Anchor points for navigating to specific sections within the Privacy & Security settings pane.
 /// These anchors allow direct navigation to subsections of the macOS System Settings Privacy & Security panel.
-@available(macOS 13.0, *)
+@available(macOS 12.0, *)
 public enum PrivacySecurityAnchor: String, CaseIterable, Sendable {
     /// Opens the Advanced section in Privacy & Security.
     case advanced = "Advanced"
@@ -105,7 +105,7 @@ public enum PrivacySecurityAnchor: String, CaseIterable, Sendable {
 }
 #endif
 
-@available(macOS 13.0, iOS 16.0, *)
+@available(macOS 12.0, iOS 16.0, *)
 public struct SystemSettingsDestination: Hashable, Sendable {
     public let url: URL
 
@@ -124,7 +124,7 @@ public struct SystemSettingsDestination: Hashable, Sendable {
 }
 
 #if os(macOS)
-@available(macOS 13.0, *)
+@available(macOS 12.0, *)
 public extension SystemSettingsDestination {
     init(paneIdentifier: String, anchor: String? = nil) {
         let encodedAnchor = anchor?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
@@ -142,7 +142,7 @@ public extension SystemSettingsDestination {
     }
 }
 
-@available(macOS 13.0, *)
+@available(macOS 12.0, *)
 public extension SystemSettingsDestination {
     /// Privacy & Security home page.
     static func privacy() -> Self {

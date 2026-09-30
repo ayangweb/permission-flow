@@ -20,6 +20,32 @@ func typedDisplaysAnchorBuildsDeepLink() {
 }
 
 @Test
+func localizerResolvesScriptSpecificCatalogues() {
+    let key = "permission_flow.pane.input_monitoring"
+
+    #expect(
+        PermissionFlowLocalizer.string(key, defaultValue: "Input Monitoring", localeIdentifier: "zh-CN") ==
+        "输入监控"
+    )
+    #expect(
+        PermissionFlowLocalizer.string(key, defaultValue: "Input Monitoring", localeIdentifier: "zh-TW") ==
+        "輸入監控"
+    )
+}
+
+@Test
+func chineseRegionsCarryTheirScriptBeforeTheLocaleLanguageAPI() {
+    // `Locale.Language` is macOS 13+, so the macOS 12 path has to recover the
+    // script from the region on its own or `zh-CN` and `zh-TW` would collapse
+    // onto the same catalogue.
+    #expect(PermissionFlowLocalizer.inferredScriptCode(for: Locale(identifier: "zh-CN")) == "Hans")
+    #expect(PermissionFlowLocalizer.inferredScriptCode(for: Locale(identifier: "zh-SG")) == "Hans")
+    #expect(PermissionFlowLocalizer.inferredScriptCode(for: Locale(identifier: "zh-TW")) == "Hant")
+    #expect(PermissionFlowLocalizer.inferredScriptCode(for: Locale(identifier: "zh-HK")) == "Hant")
+    #expect(PermissionFlowLocalizer.inferredScriptCode(for: Locale(identifier: "en-US")) == nil)
+}
+
+@Test
 @MainActor
 func controllerAcceptsOnlyUniqueAppBundles() {
     let controller = PermissionFlowController()
